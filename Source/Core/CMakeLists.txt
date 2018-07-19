@@ -19,6 +19,10 @@ if(ENABLE_QT)
   add_subdirectory(DolphinQt)
 endif()
 
+if(LIBRETRO)
+  add_subdirectory(DolphinLibretro)
+endif()
+
 if (APPLE OR WIN32)
   add_subdirectory(UpdaterCommon)
 endif()

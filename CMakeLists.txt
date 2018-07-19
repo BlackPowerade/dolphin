@@ -105,6 +105,7 @@ option(USE_DISCORD_PRESENCE "Enables Discord Rich Presence, show the current gam
 option(USE_MGBA "Enables GBA controllers emulation using libmgba" ON)
 option(ENABLE_AUTOUPDATE "Enables support for automatic updates" ON)
 option(USE_RETRO_ACHIEVEMENTS "Enables integration with retroachievements.org" ON)
+option(LIBRETRO "Build as a libretro library" OFF)
 
 # Maintainers: if you consider blanket disabling this for your users, please
 # consider the following points:
@@ -464,6 +465,23 @@ if(ANDROID)
   SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
   SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
   SET(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+
+elseif(HAIKU)
+  set(USE_X11 0)
+  set(USE_UPNP 0)
+  set(USE_EGL 0)
+endif()
+
+if(LIBRETRO)
+  set(ENABLE_HEADLESS 1)
+  set(USE_UPNP 0)
+  set(ENABLE_ALSA 0)
+  set(ENABLE_PULSEAUDIO 0)
+  set(ENABLE_OPENAL 0)
+  set(ENABLE_LLVM 0)
+  set(ENABLE_ANALYTICS 0)
+  add_definitions(-D__LIBRETRO__)
+  check_and_add_flag(FPIC -fpic)
 endif()
 
 if(ENABLE_HEADLESS)
@@ -573,7 +591,10 @@ if(ENABLE_EVDEV)
     add_definitions(-DHAVE_LIBUDEV=1)
     add_definitions(-DHAVE_LIBEVDEV=1)
   else()
-    message(FATAL_ERROR "Couldn't find libevdev and/or libudev. Can't build evdev controller backend.\nDisable ENABLE_EVDEV if you wish to build without controller support")
+    message(STATUS "Couldn't find libevdev and/or libudev. Can't build evdev controller backend.")
+    if(NOT LIBRETRO)
+      message(FATAL_ERROR "Disable ENABLE_EVDEV if you wish to build without controller support")
+    endif()
   endif()
 endif()
 
